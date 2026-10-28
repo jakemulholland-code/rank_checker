@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rank spot check | Paramount Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  /* Paramount Digital refreshed brand: light / editorial */
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f6f7f8; --surface3:#fbfbfc;
+  --ink:#1a1a1a; --text:#2a2a2a; --muted:#6a6a6a; --muted2:#a3a3a3;
+  --line:#ededed; --line2:#dedede;
+  --teal:#01C6A3; --teal-dark:#008475; --amber:#E8A828; --red:#DA1A50;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;}
+a{color:inherit;}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+
+/* topbar */
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:0 2.5rem;height:74px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.wordmark{font-family:'Fraunces',serif;font-weight:900;font-size:1.2rem;letter-spacing:-.02em;text-decoration:none;color:var(--ink);}
+.wordmark span{color:var(--teal);}
+.topbar-right{display:flex;align-items:center;gap:.85rem;}
+.topbar-label{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-dark);font-weight:600;}
+.topbar-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+.topbar-date{font-size:.66rem;color:var(--muted2);letter-spacing:.04em;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.6);}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:4rem 2.5rem 3.2rem;border-bottom:1px solid var(--line);background:var(--surface3);}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 60% at 100% 0%,rgba(1,198,163,.10) 0%,transparent 55%),radial-gradient(ellipse 40% 50% at 0% 100%,rgba(232,168,40,.07) 0%,transparent 55%);}
+.hero-inner{max-width:1240px;margin:0 auto;position:relative;}
+.hero-kicker{display:inline-flex;align-items:center;gap:.6rem;font-size:.64rem;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-dark);font-weight:600;margin-bottom:1.2rem;}
+.hero-kicker::before{content:'';display:block;width:26px;height:2px;background:var(--teal);border-radius:2px;}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(2.3rem,5.2vw,4rem);font-weight:900;line-height:1.02;letter-spacing:-.025em;color:var(--ink);margin-bottom:1.1rem;}
+.hero-title .accent{color:var(--teal-dark);font-style:italic;}
+.hero-sub{color:var(--muted);font-size:.92rem;max-width:620px;line-height:1.8;font-weight:400;}
+
+.main-wrap{max-width:1240px;margin:0 auto;padding:2.4rem 2.5rem 4rem;}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1.6rem;}
+.search-box{position:relative;}
+.search-box{flex:1;min-width:220px;}
+.search-box input{width:100%;background:var(--surface2);border:1px solid var(--line2);color:var(--text);font-family:'Sora',sans-serif;font-size:.84rem;font-weight:400;padding:.62rem .95rem .62rem 2.2rem;border-radius:9px;outline:none;transition:border-color .14s,background .14s;}
+.search-box input:focus{border-color:var(--teal);background:#fff;}
+.search-box input::placeholder{color:var(--muted2);}
+.search-box::before{content:'⌕';position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:1.05rem;pointer-events:none;}
+.hero-filter-select{appearance:none;background:#fff;border:1px solid var(--line2);color:var(--muted);padding:.58rem 2rem .58rem .9rem;border-radius:9px;font-size:.74rem;font-family:'Sora',sans-serif;font-weight:500;cursor:pointer;transition:border-color .14s,color .14s;min-width:155px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M1 3l4 4 4-4' stroke='%23a3a3a3' stroke-width='1.4' fill='none'/></svg>");background-repeat:no-repeat;background-position:right .8rem center;}
+.hero-filter-select:hover,.hero-filter-select:focus{border-color:var(--teal);color:var(--ink);outline:none;}
+.btn-secondary{background:#fff;color:var(--muted);border:1px solid var(--line2);padding:.58rem 1.1rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:border-color .14s,color .14s;}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal-dark);}
+.results-badge{margin-left:auto;font-size:.72rem;color:var(--muted);white-space:nowrap;font-weight:500;}
+
+.hidden{display:none !important;}
+
+/* layout */
+.dash-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:1.3rem;align-items:start;}
+.full-width{grid-column:1 / -1;}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:.4rem;}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;border-top:3px solid var(--teal);box-shadow:0 1px 2px rgba(16,24,40,.03);}
+.stat-num{font-family:'Fraunces',serif;font-size:2.1rem;font-weight:700;line-height:1;color:var(--ink);}
+.stat-num small{font-size:1.05rem;color:var(--muted2);}
+.stat-label{font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:.5rem;font-weight:600;}
+
+/* panels */
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.03);}
+.panel-header{padding:.95rem 1.3rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.7rem;}
+.panel-icon{width:28px;height:28px;border-radius:8px;background:rgba(1,198,163,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.82rem;}
+.panel-title{font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.panel-meta{margin-left:auto;font-size:.68rem;color:var(--muted2);white-space:nowrap;}
+.panel-body{padding:.2rem 0;overflow-x:auto;}
+.detail-panel{position:sticky;top:94px;}
+
+/* keyword table */
+.kw-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.kw-table th{text-align:left;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:.8rem 1.3rem .55rem;}
+.kw-table th.num,.kw-table td.num{text-align:right;}
+.kw-table td{padding:.8rem 1.3rem;border-top:1px solid var(--line);vertical-align:middle;}
+.kw-table tbody tr{cursor:pointer;transition:background .12s;}
+.kw-table tbody tr:hover{background:var(--surface3);}
+.kw-table tbody tr.selected{background:rgba(1,198,163,.06);box-shadow:inset 3px 0 0 var(--teal);}
+.kw-name{color:var(--ink);font-weight:500;}
+.kw-sub{display:block;font-size:.68rem;color:var(--muted2);margin-top:.22rem;}
+.pos{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--ink);}
+.pos.none{color:var(--muted2);font-family:'Sora',sans-serif;font-weight:400;font-size:.74rem;}
+
+/* badges */
+.badge{display:inline-block;font-size:.58rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:.22rem .55rem;border-radius:20px;white-space:nowrap;border:1px solid transparent;}
+.badge-good{background:rgba(1,198,163,.1);color:var(--teal-dark);border-color:rgba(1,198,163,.25);}
+.badge-mid{background:rgba(232,168,40,.12);color:#9a6a0c;border-color:rgba(232,168,40,.3);}
+.badge-low{background:rgba(218,26,80,.07);color:var(--red);border-color:rgba(218,26,80,.22);}
+.badge-flat{background:var(--surface2);color:var(--muted);border-color:var(--line);}
+
+/* top 10 list */
+.serp{list-style:none;}
+.serp li{display:grid;grid-template-columns:2.6rem minmax(0,1fr) auto;gap:.9rem;padding:.95rem 1.3rem;border-top:1px solid var(--line);align-items:start;}
+.serp li:first-child{border-top:none;}
+.serp li.target{background:rgba(1,198,163,.06);box-shadow:inset 3px 0 0 var(--teal);}
+.serp-pos{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;line-height:1;color:var(--muted2);text-align:right;}
+.serp li.target .serp-pos{color:var(--teal-dark);}
+.serp-title{font-size:.88rem;font-weight:500;color:var(--ink);text-decoration:none;line-height:1.4;}
+.serp-title:hover{color:var(--teal-dark);text-decoration:underline;}
+.serp-url{display:block;font-size:.7rem;color:var(--muted2);margin-top:.3rem;overflow-wrap:anywhere;}
+
+.empty{padding:2.5rem 1.4rem;color:var(--muted);font-size:.86rem;line-height:1.7;font-weight:400;text-align:center;}
+.empty code{background:var(--surface2);border:1px solid var(--line);padding:.1rem .4rem;border-radius:5px;font-size:.78rem;color:var(--ink);}
+.error-msg{padding:1rem 1.4rem;background:rgba(218,26,80,.06);border:1px solid rgba(218,26,80,.25);border-radius:10px;color:var(--red);font-size:.82rem;font-weight:500;line-height:1.6;}
+.error-msg.inline{margin:1rem 1.3rem;}
+
+footer{border-top:1px solid var(--line);padding:1.8rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;max-width:1240px;margin:0 auto;}
+.footer-text{font-size:.7rem;color:var(--muted2);letter-spacing:.03em;}
+
+
+/* run panel */
+.run-panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.03);padding:1.4rem;margin-bottom:2rem;}
+.run-form{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:1.2rem;align-items:stretch;}
+.field-label{display:block;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.45rem;}
+.run-form textarea,.run-form input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--line2);color:var(--text);font-family:'Sora',sans-serif;font-size:.84rem;font-weight:400;padding:.7rem .9rem;border-radius:9px;outline:none;transition:border-color .14s,background .14s;line-height:1.7;}
+.run-form textarea{min-height:150px;resize:vertical;}
+.run-form textarea:focus,.run-form input[type=text]:focus{border-color:var(--teal);background:#fff;}
+.run-form textarea::placeholder,.run-form input::placeholder{color:var(--muted2);}
+.run-side{display:flex;flex-direction:column;gap:1rem;}
+.btn-run{background:var(--teal-dark);color:#fff;border:none;padding:.85rem 1.4rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;}
+.btn-run:hover{background:var(--teal);}
+.btn-run:active{transform:scale(.98);}
+.btn-run:disabled{background:var(--muted2);cursor:not-allowed;}
+.run-hint{font-size:.72rem;color:var(--muted);line-height:1.65;font-weight:400;}
+.kw-count{font-size:.68rem;color:var(--muted2);margin-top:.4rem;}
+.form-msg{margin-top:1rem;}
+.done-msg{margin-top:1rem;font-size:.8rem;color:var(--teal-dark);font-weight:500;}
+
+.progress-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.9rem;flex-wrap:wrap;}
+.progress-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;color:var(--ink);letter-spacing:-.01em;}
+.progress-title em{color:var(--teal-dark);}
+.progress-bar{height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-bottom:.9rem;}
+.progress-bar i{display:block;height:100%;background:var(--teal);border-radius:5px;transition:width .4s ease;}
+.progress-phase{font-size:.82rem;color:var(--muted);font-weight:400;display:flex;align-items:center;gap:.6rem;}
+.spinner{width:14px;height:14px;border:2px solid var(--line2);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.captcha-msg{padding:1rem 1.2rem;background:rgba(232,168,40,.1);border:1px solid rgba(232,168,40,.35);border-radius:10px;color:#7a5408;font-size:.84rem;font-weight:500;line-height:1.6;}
+.results-heading{font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;color:var(--ink);letter-spacing:-.01em;margin-bottom:1rem;}
+
+
+/* tabs */
+.tabs{display:flex;gap:.3rem;margin-bottom:1.2rem;border-bottom:1px solid var(--line);}
+.tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;padding:.55rem .9rem .7rem;font-family:'Sora',sans-serif;font-size:.8rem;font-weight:500;color:var(--muted);cursor:pointer;transition:color .14s,border-color .14s;}
+.tab:hover{color:var(--ink);}
+.tab.active{color:var(--teal-dark);border-bottom-color:var(--teal);}
+
+/* import */
+.dropzone{border:2px dashed var(--line2);border-radius:14px;background:#fff;padding:2.4rem 1.6rem;text-align:center;transition:border-color .15s,background .15s;cursor:pointer;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.dropzone.drag,.dropzone:hover{border-color:var(--teal);background:rgba(1,198,163,.04);}
+.dropzone-icon{width:48px;height:48px;border-radius:12px;background:rgba(1,198,163,.1);display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;font-size:1.25rem;}
+.dropzone h3{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.4rem;}
+.dropzone p{color:var(--muted);font-size:.8rem;line-height:1.7;max-width:420px;font-weight:400;}
+.dropzone .pick{color:var(--teal-dark);font-weight:600;}
+.imp-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.9rem;}
+.imp-file{font-size:.84rem;color:var(--ink);font-weight:500;}
+.imp-file small{color:var(--muted);font-weight:400;margin-left:.4rem;}
+.link-btn{background:none;border:none;color:var(--teal-dark);font-family:'Sora',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;padding:0;}
+.link-btn:hover{text-decoration:underline;}
+.map-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin-bottom:1rem;}
+.map-row .hero-filter-select{width:100%;min-width:0;}
+.imp-tools{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;margin-bottom:.7rem;}
+.imp-tools .search-box{min-width:180px;}
+.run-form .search-box input[type=text]{padding:.5rem .9rem .5rem 2.2rem;line-height:1.5;}
+.imp-table td:first-child,.imp-table th:first-child{width:36px;padding-right:0;}
+.chip-btn{background:var(--surface2);border:1px solid var(--line);color:var(--muted);padding:.42rem .75rem;border-radius:20px;font-family:'Sora',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.chip-btn:hover{border-color:var(--teal);color:var(--teal-dark);}
+.imp-table-wrap{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px;}
+.imp-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.imp-table th{position:sticky;top:0;background:var(--surface3);text-align:left;font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:.6rem .8rem;border-bottom:1px solid var(--line);z-index:1;}
+.imp-table td{padding:.5rem .8rem;border-top:1px solid var(--line);vertical-align:middle;}
+.imp-table tr:first-child td{border-top:none;}
+.imp-table tbody tr{cursor:pointer;}
+.imp-table tbody tr:hover{background:var(--surface3);}
+.imp-table tbody tr.on{background:rgba(1,198,163,.06);}
+.imp-table input[type=checkbox]{accent-color:var(--teal-dark);width:15px;height:15px;cursor:pointer;}
+.imp-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.imp-table .kwcell{color:var(--ink);font-weight:400;}
+.imp-table .urlcell{color:var(--muted2);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.imp-foot{display:flex;justify-content:space-between;gap:1rem;margin-top:.6rem;font-size:.7rem;color:var(--muted);flex-wrap:wrap;}
+.imp-foot .warn{color:var(--red);font-weight:600;}
+
+/* comparison */
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.68rem;color:var(--muted);align-items:center;padding:.8rem 1.3rem 0;}
+.legend span{display:inline-flex;align-items:center;gap:.42rem;}
+.ldot{width:10px;height:10px;border-radius:50%;}
+.ldot.w{background:var(--amber);}.ldot.m{background:var(--teal-dark);}
+.cmp-table .track{width:190px;}
+.cmp-table th.wide{width:34%;}
+.cmp-table tr.expand td{background:var(--surface3);padding:0 1.3rem 1.3rem;cursor:default;}
+.cmp-table tr.expand:hover{background:none;}
+.cmp-table tr.expand .ref-box{margin:1rem 0;background:#fff;}
+.serp.compact{columns:2;column-gap:1.2rem;background:#fff;border:1px solid var(--line);border-radius:10px;padding:.3rem 0;}
+.serp.compact li{break-inside:avoid;grid-template-columns:1.8rem minmax(0,1fr) auto;padding:.55rem .9rem;gap:.6rem;border-top:none;}
+.serp.compact .serp-pos{font-size:1.05rem;}
+.serp.compact .serp-title{font-size:.78rem;}
+.serp.compact .serp-url{font-size:.64rem;}
+.serp li.wurl{box-shadow:inset 3px 0 0 var(--amber);}
+.serp li.wurl.target{box-shadow:inset 3px 0 0 var(--teal), inset 6px 0 0 var(--amber);}
+.chev{display:inline-block;color:var(--muted2);font-size:.65rem;margin-right:.5rem;transition:transform .15s;}
+tr.selected .chev{transform:rotate(90deg);}
+.cmp-table .track svg{display:block;width:190px;height:22px;}
+.ref-box{margin:1rem 1.3rem 0;padding:.9rem 1rem;background:var(--surface3);border:1px solid var(--line);border-radius:10px;font-size:.78rem;line-height:1.7;color:var(--text);font-weight:400;}
+.ref-box b{font-weight:600;color:var(--ink);}
+.ref-box .u{color:var(--muted);overflow-wrap:anywhere;}
+.ref-box .note{margin-top:.5rem;color:#7a5408;}
+
+@media(max-width:860px){ .run-form{grid-template-columns:1fr;} .map-row{grid-template-columns:1fr 1fr;} .cmp-table .track{display:none;} .serp.compact{columns:1;} }
+@media(prefers-reduced-motion:reduce){ .spinner{animation-duration:2s;} .progress-bar i{transition:none;} }
+
+@media(max-width:860px){
+  .dash-grid{grid-template-columns:1fr;}
+  .full-width{grid-column:1;}
+  .detail-panel{position:static;}
+  .controls{flex-direction:column;align-items:stretch;}
+  .results-badge{margin-left:0;}
+}
+@media(max-width:640px){
+  .topbar{padding:0 1.25rem;}.topbar-label{display:none;}
+  .hero{padding:2.4rem 1.25rem;}.main-wrap{padding:1.5rem;}
+  .kw-table th,.kw-table td,.serp li{padding-left:1rem;padding-right:1rem;}
+  .cmp-table{min-width:520px;}
+  .cmp-table td:first-child{min-width:160px;}
+  .panel-meta{display:none;}
+}
+@media(prefers-reduced-motion:reduce){.topbar-dot{animation:none;}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="https://paramountdigital.co.uk" target="_blank" rel="noopener">Paramount<span>.</span>Digital</a>
+  <div class="topbar-right">
+    <span class="topbar-label">Rank spot check</span>
+    <div class="topbar-dot"></div>
+    <span class="topbar-date" id="updated-date"></span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker" id="hero-kicker">Google top 10</div>
+    <h1 class="hero-title" id="hero-title">No checks yet</h1>
+    <p class="hero-sub" id="hero-sub"></p>
+  </div>
+</section>
+
+<div class="main-wrap">
+  <section class="run-panel hidden" id="run-panel" aria-live="polite"></section>
+
+  <div id="results-area">
+    <div class="controls" id="filter-bar">
+      <select class="hero-filter-select" id="run-select" aria-label="Choose a previous check"></select>
+      <div class="search-box"><input id="kw-filter" type="text" placeholder="Filter keywords" aria-label="Filter keywords" /></div>
+      <span class="results-badge" id="results-badge"></span>
+      <button class="btn-secondary" id="export-btn" type="button">Export CSV</button>
+    </div>
+    <main class="dash-grid" id="main"></main>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-text">Signed-out results from a fresh browser session per keyword. Positions count one listing per result; ads, carousels and People Also Ask are excluded.</span>
+  <span class="footer-text" id="footer-gen"></span>
+</footer>
+
+<script>
+const LIVE = /*__LIVE__*/false;
+const STATIC_DATA = /*__DATA__*/null;
+
+let runs = [];               // newest first, only runs with at least one keyword
+const state = { runId: null, followLatest: true, filter: '', selected: null, expanded: null, tab: 'manual', imp: null, importing: false,
+                job: null, lastSig: '', formReady: false, offline: false, formMsg: '', polling: false };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = iso => iso ? new Date(iso).toLocaleString('en-GB', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+const fmtTime = iso => iso ? new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) : '';
+const currentRun = () => runs.find(r => r.run_id === state.runId) || null;
+const currentDomain = () => ((currentRun() || {}).settings || {}).target_domain || '';
+
+function matchesDomain(result, domain) {
+  if (!domain || !result.domain) return false;
+  return result.domain === domain || result.domain.endsWith('.' + domain);
+}
+function positionFor(kwRecord, domain) {
+  if (!kwRecord || kwRecord.status !== 'ok') return null;
+  const hit = kwRecord.results.find(r => matchesDomain(r, domain));
+  return hit ? hit.position : null;
+}
+function previousRecord(keyword) {
+  const idx = runs.findIndex(r => r.run_id === state.runId);
+  for (let i = idx + 1; i < runs.length; i++) {
+    const rec = runs[i].keywords.find(k => k.keyword.toLowerCase() === keyword.toLowerCase() && k.status === 'ok');
+    if (rec) return rec;
+  }
+  return null;
+}
+function changeBadge(kw, domain) {
+  const prev = previousRecord(kw.keyword);
+  if (!prev || !domain || kw.status !== 'ok') return '<span class="badge badge-flat">First check</span>';
+  const now = positionFor(kw, domain), before = positionFor(prev, domain);
+  if (now === null && before === null) return '<span class="badge badge-flat">Not ranking</span>';
+  if (before === null) return '<span class="badge badge-good">New</span>';
+  if (now === null) return '<span class="badge badge-low">Dropped out</span>';
+  const diff = before - now;
+  if (diff > 0) return `<span class="badge badge-good">Up ${diff}</span>`;
+  if (diff < 0) return `<span class="badge badge-low">Down ${-diff}</span>`;
+  return '<span class="badge badge-flat">No change</span>';
+}
+
+/* ---------------- history ---------------- */
+
+function setHistory(history) {
+  runs = (history.runs || []).filter(r => r.keywords && r.keywords.length).slice().reverse();
+  if (state.followLatest || !currentRun()) state.runId = runs.length ? runs[0].run_id : null;
+  $('run-select').innerHTML = runs.map(r =>
+    `<option value="${esc(r.run_id)}">${esc(fmtDate(r.started_at))} (${r.keywords.length} keyword${r.keywords.length === 1 ? '' : 's'}${r.reference ? ', Wincher comparison' : ''})</option>`).join('');
+  if (state.runId) $('run-select').value = state.runId;
+}
+
+/* ---------------- results ---------------- */
+
+function render() {
+  const main = $('main');
+  const run = currentRun();
+  $('filter-bar').classList.toggle('hidden', !run);
+
+  if (!run) {
+    $('updated-date').textContent = '';
+    $('hero-kicker').textContent = 'Rank spot check';
+    $('hero-title').innerHTML = 'Where do you <span class="accent">rank?</span>';
+    $('hero-sub').textContent = LIVE ? 'Add your keywords and domain, then click Run check. Results appear here as each keyword finishes.'
+                                     : 'No results have been saved yet.';
+    main.innerHTML = LIVE ? '' : `<div class="panel full-width"><div class="empty">Run a check to see results here.</div></div>`;
+    $('footer-gen').textContent = '';
+    return;
+  }
+
+  if (run.reference) return renderComparison(run);
+  const s = run.settings || {};
+  const domain = currentDomain();
+  const all = run.keywords;
+  const shown = all.filter(k => k.keyword.toLowerCase().includes(state.filter.toLowerCase()));
+  const ok = all.filter(k => k.status === 'ok');
+  const failed = all.filter(k => k.status !== 'ok');
+
+  $('updated-date').textContent = fmtDate(run.finished_at || run.started_at);
+  $('hero-kicker').textContent = `Google top 10 on ${s.google_domain || 'Google'}`;
+  $('hero-title').innerHTML = `Top 10 for <span class="accent">${all.length} keyword${all.length === 1 ? '' : 's'}</span>`;
+  $('hero-sub').textContent = `Checked signed out on ${fmtDate(run.started_at)}.` +
+    (domain ? ` Rows for ${domain} are highlighted.` : ' No domain was set for this check, so nothing is highlighted.');
+  $('results-badge').textContent = state.filter ? `${shown.length} of ${all.length} keywords` : '';
+  $('footer-gen').textContent = `Check ${run.run_id}`;
+
+  const positions = domain ? ok.map(k => positionFor(k, domain)).filter(p => p !== null) : [];
+  const allResults = ok.flatMap(k => k.results);
+  const gotoCount = allResults.filter(r => r.link_type === 'goto').length;
+  const avg = positions.length ? (positions.reduce((a, b) => a + b, 0) / positions.length).toFixed(1) : '–';
+  const gotoPct = allResults.length ? Math.round(gotoCount / allResults.length * 100) : 0;
+
+  if (!state.selected || !all.some(k => k.keyword === state.selected)) state.selected = (shown[0] || all[0]).keyword;
+  const sel = all.find(k => k.keyword === state.selected);
+
+  main.innerHTML = `
+    <div class="stats full-width">
+      <div class="stat"><div class="stat-num">${ok.length}<small> / ${all.length}</small></div><div class="stat-label">Keywords read</div></div>
+      <div class="stat"><div class="stat-num">${domain ? positions.length : '–'}</div><div class="stat-label">In the top 10</div></div>
+      <div class="stat"><div class="stat-num">${domain ? avg : '–'}</div><div class="stat-label">Average position</div></div>
+      <div class="stat"><div class="stat-num">${gotoPct}<small>%</small></div><div class="stat-label">Results behind goto links</div></div>
+    </div>
+    ${failed.length ? `<div class="error-msg full-width">${failed.length} keyword${failed.length === 1 ? ' was' : 's were'} not read: ${failed.map(f => `<strong>${esc(f.keyword)}</strong> (${esc(f.error)})`).join('; ')}</div>` : ''}
+    <section class="panel">
+      <div class="panel-header"><div class="panel-icon">🔎</div><span class="panel-title">Keywords</span><span class="panel-meta">Select one to see its top 10</span></div>
+      <div class="panel-body">
+        ${shown.length ? `<table class="kw-table">
+          <thead><tr><th>Keyword</th><th class="num">Position</th><th class="num">Change</th></tr></thead>
+          <tbody>${shown.map(k => {
+            const pos = positionFor(k, domain);
+            const sub = k.status === 'ok'
+              ? (k.results[0] ? `#1 ${k.results[0].domain || 'unresolved link'}` : 'No results')
+              : (k.status === 'blocked' ? 'Blocked by a CAPTCHA' : 'Error while reading');
+            return `<tr data-kw="${esc(k.keyword)}" tabindex="0" class="${k.keyword === state.selected ? 'selected' : ''}">
+              <td><span class="kw-name">${esc(k.keyword)}</span><span class="kw-sub">${esc(sub)}</span></td>
+              <td class="num">${k.status !== 'ok' ? '<span class="pos none">not read</span>' : pos ? `<span class="pos">${pos}</span>` : `<span class="pos none">${domain ? 'not in top 10' : '–'}</span>`}</td>
+              <td class="num">${changeBadge(k, domain)}</td></tr>`;
+          }).join('')}</tbody></table>` : `<div class="empty">No keywords match “${esc(state.filter)}”.</div>`}
+      </div>
+    </section>
+    <section class="panel detail-panel">${detailPanel(sel, domain)}</section>`;
+
+  main.querySelectorAll('tbody tr').forEach(tr => {
+    const pick = () => { state.selected = tr.dataset.kw; render(); };
+    tr.addEventListener('click', pick);
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  });
+}
+
+function detailPanel(k, domain, c) {
+  if (!k) return '';
+  let head = `<div class="panel-header"><div class="panel-icon">🏁</div><span class="panel-title">${esc(k.keyword)}</span><span class="panel-meta">${fmtDate(k.checked_at)}</span></div>`;
+  if (c) head += refBox(c, domain);
+  if (k.status !== 'ok') return head + `<div class="error-msg inline">${esc(k.error || 'This keyword could not be read.')}</div>`;
+  if (!k.results.length) return head + `<div class="empty">No organic results were found for this keyword.</div>`;
+  return head + `<ol class="serp">${k.results.map(r => {
+    const badge = r.link_type === 'goto' ? '<span class="badge badge-mid" title="Google showed this result as an encrypted /goto link">goto</span>'
+                : r.link_type === 'url' ? '<span class="badge badge-flat" title="Google /url redirect">/url</span>'
+                : '<span class="badge badge-good" title="Google linked directly to the site">direct</span>';
+    const urlLine = r.resolved ? esc(r.url) : 'Destination could not be resolved';
+    return `<li class="${matchesDomain(r, domain) ? 'target' : ''}">
+      <div class="serp-pos">${r.position}</div>
+      <div><a class="serp-title" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title || r.url)}</a><span class="serp-url">${urlLine}</span></div>
+      <div>${badge}</div></li>`;
+  }).join('')}</ol>`;
+}
+
+/* ---------------- Wincher comparison ---------------- */
+
+const normUrl = u => String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[?#].*$/, '').replace(/\/+$/, '');
+
+function compareRow(k, run, domain) {
+  const depth = (run.settings || {}).depth || 10;
+  const ref = run.reference.items[k.keyword.toLowerCase()] || null;
+  const w = ref ? ref.position : null;
+  const mRes = k.status === 'ok' ? k.results.find(r => matchesDomain(r, domain)) : null;
+  const m = mRes ? mRes.position : null;
+  let kind, gap = null;
+  if (k.status !== 'ok') kind = 'unread';
+  else if (!domain) kind = 'nodomain';
+  else if (w !== null && m !== null) { gap = m - w; kind = gap === 0 ? 'match' : Math.abs(gap) <= 2 ? 'close' : 'off'; }
+  else if (w === null && m === null) kind = 'both-out';
+  else if (m === null) kind = w > depth ? 'both-out' : 'off';
+  else kind = 'off';
+  const severity = { off: 0, close: 1, match: 2, 'both-out': 3, nodomain: 4, unread: 5 }[kind];
+  return { k, w, m, gap, kind, ref, mRes, depth, severity,
+           diffUrl: !!(ref && ref.url && mRes && normUrl(ref.url) !== normUrl(mRes.url)) };
+}
+
+function gapBadge(c) {
+  if (c.kind === 'unread') return '<span class="badge badge-flat">Not read</span>';
+  if (c.kind === 'nodomain') return '<span class="badge badge-flat">No domain set</span>';
+  if (c.kind === 'match') return '<span class="badge badge-good">Match</span>';
+  if (c.kind === 'both-out') return `<span class="badge badge-flat">Both outside ${c.depth}</span>`;
+  if (c.gap !== null) {
+    const dir = c.gap > 0 ? 'lower than Wincher shows' : 'higher than Wincher shows';
+    return `<span class="badge ${c.kind === 'close' ? 'badge-mid' : 'badge-low'}" title="Manually ${Math.abs(c.gap)} ${dir}">Off by ${Math.abs(c.gap)}</span>`;
+  }
+  if (c.m === null) return `<span class="badge badge-low">Not found manually</span>`;
+  return `<span class="badge badge-low" title="Wincher has no position in its tracking range, but the manual check found it">Found at ${c.m}, Wincher ${c.ref && c.ref.raw && c.ref.raw.startsWith('>') ? esc(c.ref.raw) : 'none'}</span>`;
+}
+
+const posText = (p, raw, depth) => p !== null ? `${p}` : (raw ? esc(raw) : '–');
+
+function track(c) {
+  const W = 190, H = 22, pad = 7, slots = c.depth + 1;
+  const x = p => pad + (((p === null || p > c.depth) ? slots : p) - 1) / (slots - 1) * (W - 2 * pad);
+  const colour = { match: 'var(--teal)', close: 'var(--amber)', off: 'var(--red)' }[c.kind] || 'var(--line2)';
+  if (c.kind === 'unread' || c.kind === 'nodomain') return '';
+  const xw = x(c.w), xm = x(c.m);
+  const out = p => p === null || p > c.depth;
+  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <line x1="${pad}" y1="11" x2="${W - pad}" y2="11" style="stroke:var(--line);stroke-width:2;stroke-linecap:round" />
+    <line x1="${x(10)}" y1="7" x2="${x(10)}" y2="15" style="stroke:var(--line2);stroke-width:1" />
+    <line x1="${Math.min(xw, xm)}" y1="11" x2="${Math.max(xw, xm)}" y2="11" style="stroke:${colour};stroke-width:3;stroke-linecap:round" />
+    <circle cx="${xw}" cy="11" r="5" style="fill:${out(c.w) ? '#fff' : 'var(--amber)'};stroke:var(--amber);stroke-width:2" />
+    <circle cx="${xm}" cy="11" r="5" style="fill:${out(c.m) ? '#fff' : 'var(--teal-dark)'};stroke:var(--teal-dark);stroke-width:2" />
+  </svg>`;
+}
+
+function refBox(c, domain) {
+  const wLine = c.w !== null ? `#${c.w}` : (c.ref && c.ref.raw ? esc(c.ref.raw) : 'no position');
+  const mLine = c.m !== null ? `#${c.m}` : `not in the top ${c.depth}`;
+  return `<div class="ref-box">
+    <b>Wincher:</b> ${wLine}${c.ref && c.ref.url ? ` <span class="u">${esc(c.ref.url)}</span>` : ''}<br>
+    <b>Manual check:</b> ${domain ? mLine : 'no domain set'}${c.mRes ? ` <span class="u">${esc(c.mRes.url)}</span>` : ''}
+    ${c.diffUrl ? `<div class="note">These are different pages. Google may be ranking another page for this keyword.</div>` : ''}
+  </div>`;
+}
+
+function renderComparison(run) {
+  const domain = currentDomain();
+  const ref = run.reference;
+  const all = run.keywords.map(k => compareRow(k, run, domain))
+    .sort((a, b) => a.severity - b.severity || Math.abs(b.gap ?? 99) - Math.abs(a.gap ?? 99));
+  const q = state.filter.toLowerCase();
+  const shown = all.filter(c => c.k.keyword.toLowerCase().includes(q));
+  const count = kind => all.filter(c => c.kind === kind).length;
+  const read = all.filter(c => c.kind !== 'unread');
+  const gaps = all.filter(c => c.gap !== null).map(c => Math.abs(c.gap));
+  const avgGap = gaps.length ? (gaps.reduce((a, b) => a + b, 0) / gaps.length).toFixed(1) : '–';
+  const failed = run.keywords.filter(k => k.status !== 'ok');
+  const exact = count('match'), close = count('close'), off = count('off');
+
+  $('updated-date').textContent = fmtDate(run.finished_at || run.started_at);
+  $('hero-kicker').textContent = `Wincher comparison on ${(run.settings || {}).google_domain || 'Google'}`;
+  $('hero-title').innerHTML = `Wincher vs manual for <span class="accent">${all.length} keyword${all.length === 1 ? '' : 's'}</span>`;
+  $('hero-sub').textContent = domain
+    ? `${exact} match exactly, ${close} are within 2 positions, and ${off} are further out or missing. Wincher positions from ${ref.filename || 'your export'}; checked manually on ${fmtDate(run.started_at)}.`
+    : 'No domain was set for this check, so positions can\u2019t be compared.';
+  $('results-badge').textContent = state.filter ? `${shown.length} of ${all.length} keywords` : '';
+  $('footer-gen').textContent = `Check ${run.run_id}`;
+
+  const open = state.expanded;
+  $('main').innerHTML = `
+    <div class="stats full-width">
+      <div class="stat"><div class="stat-num">${exact}<small> / ${read.length}</small></div><div class="stat-label">Exact matches</div></div>
+      <div class="stat"><div class="stat-num">${exact + close}<small> / ${read.length}</small></div><div class="stat-label">Within 2 positions</div></div>
+      <div class="stat"><div class="stat-num">${avgGap}</div><div class="stat-label">Average gap</div></div>
+      <div class="stat"><div class="stat-num">${gaps.length ? Math.max(...gaps) : '–'}</div><div class="stat-label">Biggest gap</div></div>
+    </div>
+    ${failed.length ? `<div class="error-msg full-width">${failed.length} keyword${failed.length === 1 ? ' was' : 's were'} not read: ${failed.map(f => `<strong>${esc(f.keyword)}</strong> (${esc(f.error)})`).join('; ')}</div>` : ''}
+    <section class="panel full-width">
+      <div class="panel-header"><div class="panel-icon">⚖️</div><span class="panel-title">Wincher vs manual</span><span class="panel-meta">Biggest gaps first. Select a keyword to see its top ${(run.settings || {}).depth || 10}.</span></div>
+      <div class="legend"><span><i class="ldot w"></i>Wincher</span><span><i class="ldot m"></i>Manual check</span><span>Hollow dot: outside the top ${(run.settings || {}).depth || 10}</span><span>Amber edge in a results list: the page Wincher tracks</span></div>
+      <div class="panel-body">
+        ${shown.length ? `<table class="kw-table cmp-table">
+          <thead><tr><th class="wide">Keyword</th><th class="track">Position 1 to ${(run.settings || {}).depth || 10}+</th><th class="num">Wincher</th><th class="num">Manual</th><th class="num">Gap</th></tr></thead>
+          <tbody>${shown.map(c => {
+            const isOpen = c.k.keyword === open;
+            return `
+            <tr data-kw="${esc(c.k.keyword)}" tabindex="0" aria-expanded="${isOpen}" class="${isOpen ? 'selected' : ''}">
+              <td><span class="kw-name"><span class="chev">▶</span>${esc(c.k.keyword)}</span><span class="kw-sub">${esc([c.ref && c.ref.group, c.diffUrl ? 'Different page ranking' : ''].filter(Boolean).join('. '))}</span></td>
+              <td class="track">${track(c)}</td>
+              <td class="num"><span class="pos ${c.w === null ? 'none' : ''}">${posText(c.w, c.ref && c.ref.raw)}</span></td>
+              <td class="num"><span class="pos ${c.m === null ? 'none' : ''}">${c.kind === 'unread' ? 'not read' : c.m ?? `>${c.depth}`}</span></td>
+              <td class="num">${gapBadge(c)}</td>
+            </tr>${isOpen ? `<tr class="expand"><td colspan="5">${expandDetail(c, domain)}</td></tr>` : ''}`;
+          }).join('')}</tbody></table>` : `<div class="empty">No keywords match “${esc(state.filter)}”.</div>`}
+      </div>
+    </section>`;
+
+  $('main').querySelectorAll('tbody tr[data-kw]').forEach(tr => {
+    const toggle = () => { state.expanded = state.expanded === tr.dataset.kw ? null : tr.dataset.kw; render(); };
+    tr.addEventListener('click', toggle);
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  });
+}
+
+function expandDetail(c, domain) {
+  const k = c.k;
+  if (k.status !== 'ok') return `<div class="error-msg" style="margin-top:1rem">${esc(k.error || 'This keyword could not be read.')}</div>`;
+  const wUrl = c.ref && c.ref.url ? normUrl(c.ref.url) : '';
+  return refBox(c, domain) + (k.results.length ? `<ol class="serp compact">${k.results.map(r => {
+    const cls = [matchesDomain(r, domain) ? 'target' : '', wUrl && normUrl(r.url) === wUrl ? 'wurl' : ''].join(' ');
+    return `<li class="${cls}">
+      <div class="serp-pos">${r.position}</div>
+      <div><a class="serp-title" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title || r.url)}</a><span class="serp-url">${r.resolved ? esc(r.url) : 'Destination could not be resolved'}</span></div>
+      <div></div></li>`;
+  }).join('')}</ol>` : `<div class="empty">No organic results were found.</div>`);
+}
+
+function exportCsv() {
+  const run = currentRun();
+  if (!run) return;
+  let rows;
+  if (run.reference) {
+    const domain = currentDomain();
+    rows = [['keyword', 'wincher_position', 'manual_position', 'gap', 'result', 'wincher_url', 'manual_url', 'checked_at']];
+    run.keywords.forEach(k => {
+      const c = compareRow(k, run, domain);
+      rows.push([k.keyword, c.w ?? (c.ref ? c.ref.raw : ''), c.m ?? (k.status === 'ok' ? `>${c.depth}` : ''), c.gap ?? '', c.kind,
+                 c.ref ? c.ref.url : '', c.mRes ? c.mRes.url : '', k.checked_at]);
+    });
+  } else {
+  rows = [['keyword', 'status', 'position', 'title', 'url', 'domain', 'link_type', 'checked_at']];
+  run.keywords.forEach(k => {
+    if (k.status !== 'ok' || !k.results.length) rows.push([k.keyword, k.status, '', '', '', '', '', k.checked_at]);
+    else k.results.forEach(r => rows.push([k.keyword, k.status, r.position, r.title, r.url, r.domain, r.link_type, k.checked_at]));
+  });
+  }
+  const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `rank-check-${run.run_id}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------------- run panel (live mode only) ---------------- */
+
+function keywordList(text) {
+  const seen = new Set();
+  return text.split('\n').map(k => k.trim()).filter(k => k && !seen.has(k.toLowerCase()) && seen.add(k.toLowerCase()));
+}
+
+function renderRunPanel() {
+  const panel = $('run-panel');
+  const job = state.job;
+
+  if (state.offline) {
+    panel.innerHTML = `<div class="error-msg">Rank Checker has stopped. Double-click the Rank Checker launcher to start it again, then refresh this page.</div>`;
+    panel.dataset.mode = 'offline';
+    return;
+  }
+
+  if (job && job.running) {
+    const pct = job.total ? Math.round(job.done / job.total * 100) : 0;
+    const secsLeft = job.wait_until ? Math.max(0, Math.round(job.wait_until - Date.now() / 1000 - state.clockSkew)) : 0;
+    let phase;
+    if (job.phase === 'captcha') {
+      phase = `<div class="captcha-msg">Google is asking for a CAPTCHA. Switch to the Chrome window, solve it, and the check will carry on by itself.</div>`;
+    } else if (job.phase === 'waiting') {
+      phase = `<div class="progress-phase"><div class="spinner"></div>Pausing ${secsLeft}s before the next search so Google doesn't block the check.</div>`;
+    } else if (job.phase === 'starting') {
+      phase = `<div class="progress-phase"><div class="spinner"></div>Opening Chrome…</div>`;
+    } else {
+      phase = `<div class="progress-phase"><div class="spinner"></div>Reading Google's results${job.current ? ` for “${esc(job.current)}”` : ''}…</div>`;
+    }
+    panel.innerHTML = `
+      <div class="progress-head">
+        <div class="progress-title">Checked <em>${job.done}</em> of ${job.total} keyword${job.total === 1 ? '' : 's'}</div>
+        <button class="btn-secondary" id="stop-btn" type="button" ${state.stopping ? 'disabled' : ''}>${state.stopping ? 'Stopping after this keyword…' : 'Stop'}</button>
+      </div>
+      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${job.total}" aria-valuenow="${job.done}"><i style="width:${pct}%"></i></div>
+      ${phase}`;
+    $('stop-btn').addEventListener('click', stopRun);
+    panel.dataset.mode = 'progress';
+    return;
+  }
+
+  // Form. Only rebuild it when switching modes so typing isn't interrupted.
+  if (panel.dataset.mode !== 'form') {
+    const kwVal = $('kw-input') ? $('kw-input').value : (state.settings?.keywords || '');
+    const domVal = $('domain-input') ? $('domain-input').value : (state.settings?.domain || '');
+    panel.innerHTML = `
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" type="button" data-tab="manual">Type keywords</button>
+        <button class="tab" role="tab" type="button" data-tab="import">Compare with Wincher</button>
+      </div>
+      <div class="run-form">
+        <div>
+          <div id="tab-manual">
+            <label class="field-label" for="kw-input">Keywords, one per line</label>
+            <textarea id="kw-input" spellcheck="false" placeholder="bad credit car finance">${esc(kwVal)}</textarea>
+            <div class="kw-count" id="kw-count"></div>
+          </div>
+          <div id="tab-import"></div>
+        </div>
+        <div class="run-side">
+          <div>
+            <label class="field-label" for="domain-input">Your domain</label>
+            <input id="domain-input" type="text" spellcheck="false" placeholder="example.co.uk" value="${esc(domVal)}" />
+          </div>
+          <button class="btn-run" id="run-btn" type="button">Run check</button>
+          <p class="run-hint" id="run-hint"></p>
+        </div>
+      </div>
+      <div id="form-msg"></div>`;
+    panel.dataset.mode = 'form';
+    panel.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
+    $('run-btn').addEventListener('click', startRun);
+    $('kw-input').addEventListener('input', updateRunButton);
+    $('kw-input').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) startRun(); });
+    $('domain-input').addEventListener('keydown', e => { if (e.key === 'Enter') startRun(); });
+    renderImport();
+    setTab(state.tab);
+  }
+  updateRunButton();
+
+  let msg = '';
+  if (state.formMsg) msg = `<div class="error-msg form-msg">${esc(state.formMsg)}</div>`;
+  else if (job && (job.phase === 'blocked' || job.phase === 'error') && job.error) msg = `<div class="error-msg form-msg">${esc(job.error)}</div>`;
+  else if (job && job.phase === 'done' && currentRun()) msg = `<div class="done-msg">Finished at ${fmtTime(currentRun().finished_at)}. Results are below.</div>`;
+  else if (job && job.phase === 'stopped') msg = `<div class="done-msg">Stopped. Keywords checked before you stopped are below.</div>`;
+  $('form-msg').innerHTML = msg;
+}
+
+function setTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('#run-panel .tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+    t.setAttribute('aria-selected', t.dataset.tab === tab);
+  });
+  $('tab-manual').classList.toggle('hidden', tab !== 'manual');
+  $('tab-import').classList.toggle('hidden', tab !== 'import');
+  updateRunButton();
+}
+
+const minutes = (n, secs) => { const m = Math.max(1, Math.round(n * secs / 60)); return `roughly ${m} minute${m === 1 ? '' : 's'}`; };
+
+function updateRunButton() {
+  const btn = $('run-btn');
+  if (!btn) return;
+  if (state.tab === 'import') {
+    const n = state.imp ? state.imp.selected.size : 0;
+    btn.textContent = n ? `Check ${n} keyword${n === 1 ? '' : 's'}` : 'Choose keywords to check';
+    btn.disabled = n === 0 || n > MAX_KEYWORDS;
+    $('run-hint').textContent = 'Each keyword is checked down to position 20 so it can be compared with Wincher. A Chrome window opens while it runs; leave it open.';
+    if ($('imp-count')) {
+      $('imp-count').innerHTML = n > MAX_KEYWORDS
+        ? `<span class="warn">${n} selected. Choose ${MAX_KEYWORDS} or fewer.</span>`
+        : (n ? `${n} selected, ${minutes(n, 45)}` : 'Nothing selected yet');
+    }
+  } else {
+    const n = keywordList($('kw-input').value).length;
+    btn.textContent = 'Run check';
+    btn.disabled = false;
+    $('run-hint').textContent = 'A Chrome window opens while the check runs. Leave it open. Each keyword takes about 30 seconds, because the check pauses between searches.';
+    $('kw-count').textContent = n ? `${n} keyword${n === 1 ? '' : 's'}, ${minutes(n, 35)}` : '';
+  }
+}
+
+/* ---------------- Wincher import ---------------- */
+
+const MAX_KEYWORDS = 30;
+
+function parsePosition(raw) {
+  const s = String(raw ?? '').trim();
+  if (!s || /^[-–—]+$/.test(s) || />|\+$|not|n\/a|none|unranked/i.test(s)) return null;
+  const m = s.match(/\d+(\.\d+)?/);
+  if (!m) return null;
+  const n = Math.round(parseFloat(m[0]));
+  return n > 0 ? n : null;
+}
+
+function buildItems() {
+  const imp = state.imp, map = imp.map, seen = new Map();
+  let dupes = 0;
+  const cell = (r, i) => (i === null || i === undefined) ? '' : String(r[i] ?? '').trim();
+  for (const r of imp.rows) {
+    const kw = cell(r, map.keyword);
+    if (!kw) continue;
+    const key = kw.toLowerCase();
+    if (seen.has(key)) { dupes++; continue; }
+    const raw = cell(r, map.position);
+    seen.set(key, { keyword: kw, key, raw, position: map.position === null ? null : parsePosition(raw),
+                    url: cell(r, map.url), group: cell(r, map.group), volume: cell(r, map.volume),
+                    status: cell(r, map.status).toUpperCase() });
+  }
+  // Trackers record "not ranking" as one past their tracking depth (Wincher uses 31 for
+  // "not in the top 30"). If the highest position in the file is one of those, treat it so.
+  const positions = [...seen.values()].map(i => i.position).filter(Boolean);
+  const max = positions.length ? Math.max(...positions) : null;
+  imp.sentinel = [31, 51, 101].includes(max) ? max : null;
+  if (imp.sentinel) seen.forEach(i => { if (i.position === imp.sentinel) { i.position = null; i.raw = `>${imp.sentinel - 1}`; } });
+  imp.items = [...seen.values()].sort((a, b) => (a.position ?? 1e9) - (b.position ?? 1e9) || a.keyword.localeCompare(b.keyword));
+  imp.dupes = dupes;
+  imp.selected = new Set([...imp.selected].filter(k => seen.has(k)));
+}
+
+function renderImport() {
+  const box = $('tab-import');
+  if (!box) return;
+  const imp = state.imp;
+  if (!imp) {
+    box.innerHTML = `
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose a Wincher export">
+        <div class="dropzone-icon">📄</div>
+        <h3>${state.importing ? 'Reading your export…' : 'Drop a Wincher export here'}</h3>
+        <p>${state.importing ? 'This only takes a moment.' : 'CSV or Excel. In Wincher, open Keyword Overview and use the Export button. Or <span class="pick">choose a file</span>.'}</p>
+      </div>
+      <input type="file" id="file-input" accept=".csv,.tsv,.txt,.xlsx" class="hidden" />`;
+    const dz = $('dropzone'), fi = $('file-input');
+    dz.addEventListener('click', () => fi.click());
+    dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+    fi.addEventListener('change', () => { if (fi.files[0]) loadFile(fi.files[0]); });
+    return;
+  }
+
+  const opts = (field, optional) => (optional ? `<option value="">None</option>` : '') +
+    imp.headers.map((h, i) => `<option value="${i}" ${imp.map[field] === i ? 'selected' : ''}>${esc(h)}</option>`).join('');
+  box.innerHTML = `
+    <div class="imp-head">
+      <span class="imp-file">${esc(imp.filename)}<small id="imp-total"></small></span>
+      <button class="link-btn" id="imp-change" type="button">Use a different file</button>
+    </div>
+    <div class="map-row">
+      <div><label class="field-label" for="map-keyword">Keyword column</label><select class="hero-filter-select" id="map-keyword" data-field="keyword">${opts('keyword')}</select></div>
+      <div><label class="field-label" for="map-position">Wincher position</label><select class="hero-filter-select" id="map-position" data-field="position">${opts('position', true)}</select></div>
+      <div><label class="field-label" for="map-url">Ranking URL</label><select class="hero-filter-select" id="map-url" data-field="url">${opts('url', true)}</select></div>
+      <div><label class="field-label" for="map-group">Group</label><select class="hero-filter-select" id="map-group" data-field="group">${opts('group', true)}</select></div>
+    </div>
+    <div class="imp-tools">
+      <div class="search-box"><input id="imp-filter" type="text" placeholder="Filter keywords or groups" value="${esc(imp.filter)}" aria-label="Filter imported keywords" /></div>
+      <button class="chip-btn" type="button" data-pick="top10">Top 10</button>
+      <button class="chip-btn" type="button" data-pick="top20">Positions 11 to 20</button>
+      ${imp.map.status !== null && imp.map.status !== undefined ? '<button class="chip-btn" type="button" data-pick="lost">Marked lost</button>' : ''}
+      <button class="chip-btn" type="button" data-pick="shown">All shown</button>
+      <button class="chip-btn" type="button" data-pick="none">Clear</button>
+    </div>
+    <div class="imp-table-wrap"><table class="imp-table">
+      <thead><tr><th></th><th>Keyword</th><th class="num">Wincher</th><th id="imp-extra-h"></th></tr></thead>
+      <tbody id="imp-body"></tbody>
+    </table></div>
+    <div class="imp-foot"><span id="imp-count"></span><span id="imp-note"></span></div>`;
+
+  $('imp-change').addEventListener('click', () => { state.imp = null; renderImport(); updateRunButton(); });
+  box.querySelectorAll('.map-row select').forEach(sel => sel.addEventListener('change', () => {
+    imp.map[sel.dataset.field] = sel.value === '' ? null : +sel.value;
+    buildItems(); renderImportRows(); updateRunButton();
+  }));
+  $('imp-filter').addEventListener('input', e => { imp.filter = e.target.value; renderImportRows(); });
+  box.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => {
+    const shown = shownItems();
+    const pick = b.dataset.pick;
+    imp.selected = new Set(pick === 'none' ? [] : shown.filter(i =>
+      pick === 'shown' || (pick === 'lost' ? i.status === 'LOST'
+        : pick === 'top10' ? i.position && i.position <= 10 : i.position && i.position > 10 && i.position <= 20)).map(i => i.key));
+    renderImportRows(); updateRunButton();
+  }));
+  $('imp-body').addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-key]');
+    if (!tr) return;
+    const key = tr.dataset.key;
+    imp.selected.has(key) ? imp.selected.delete(key) : imp.selected.add(key);
+    tr.classList.toggle('on', imp.selected.has(key));
+    tr.querySelector('input').checked = imp.selected.has(key);
+    updateRunButton();
+  });
+  renderImportRows();
+}
+
+function shownItems() {
+  const q = state.imp.filter.trim().toLowerCase();
+  return state.imp.items.filter(i => !q || i.keyword.toLowerCase().includes(q) || i.group.toLowerCase().includes(q));
+}
+
+function renderImportRows() {
+  const imp = state.imp;
+  const extra = imp.map.group !== null ? 'group' : (imp.map.url !== null ? 'url' : null);
+  $('imp-extra-h').textContent = extra === 'group' ? 'Group' : extra === 'url' ? 'Ranking URL' : '';
+  const shown = shownItems();
+  const LIMIT = 500;
+  $('imp-body').innerHTML = shown.slice(0, LIMIT).map(i => `
+    <tr data-key="${esc(i.key)}" class="${imp.selected.has(i.key) ? 'on' : ''}">
+      <td><input type="checkbox" tabindex="-1" aria-label="Check ${esc(i.keyword)}" ${imp.selected.has(i.key) ? 'checked' : ''} /></td>
+      <td class="kwcell">${esc(i.keyword)}</td>
+      <td class="num">${i.status === 'LOST' ? '<span class="badge badge-low" style="margin-right:.4rem">Lost</span>' : ''}${i.position ?? (i.raw ? esc(i.raw) : '–')}</td>
+      <td class="urlcell" title="${esc(extra ? i[extra] : '')}">${esc(extra ? i[extra] : '')}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="empty">No keywords match that filter.</td></tr>`;
+  $('imp-total').textContent = ` ${imp.items.length} keywords`;
+  const notes = [];
+  if (shown.length > LIMIT) notes.push(`Showing the first ${LIMIT} of ${shown.length}. Filter to find others.`);
+  if (imp.dupes) notes.push(`${imp.dupes} duplicate row${imp.dupes === 1 ? '' : 's'} skipped.`);
+  if (imp.map.position === null) notes.push('Pick the Wincher position column to compare positions.');
+  if (imp.sentinel) notes.push(`Position ${imp.sentinel} is treated as not ranking (outside the top ${imp.sentinel - 1}).`);
+  $('imp-note').textContent = notes.join(' ');
+}
+
+function loadFile(file) {
+  state.formMsg = '';
+  if (file.size > 15 * 1024 * 1024) { showFormMsg('That file is over 15 MB. Export just the keywords you need.'); return; }
+  state.importing = true; renderImport();
+  const reader = new FileReader();
+  reader.onerror = () => { state.importing = false; renderImport(); showFormMsg("That file couldn't be read."); };
+  reader.onload = async () => {
+    try {
+      const d = await post('/api/import', { filename: file.name, data: reader.result });
+      state.imp = { ...d, map: { status: null, ...d.detected }, selected: new Set(), filter: '' };
+      buildItems();
+    } catch (err) {
+      showFormMsg(err.message);
+    }
+    state.importing = false;
+    renderImport(); updateRunButton(); renderRunPanel();
+  };
+  reader.readAsDataURL(file);
+}
+
+function showFormMsg(msg) {
+  state.formMsg = msg;
+  if ($('form-msg')) $('form-msg').innerHTML = msg ? `<div class="error-msg form-msg">${esc(msg)}</div>` : '';
+}
+
+async function post(path, body) {
+  const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Something went wrong starting the check.');
+  return data;
+}
+
+async function startRun() {
+  const btn = $('run-btn');
+  if (!btn || btn.disabled) return;
+  state.formMsg = '';
+  btn.disabled = true;
+  try {
+    const domain = $('domain-input').value;
+    let body;
+    if (state.tab === 'import' && state.imp) {
+      const sel = state.imp.items.filter(i => state.imp.selected.has(i.key));
+      body = { keywords: sel.map(i => i.keyword).join('\n'), domain, depth: 20,
+               reference: { source: 'Wincher', filename: state.imp.filename, imported_at: new Date().toISOString(),
+                            items: Object.fromEntries(sel.map(i => [i.key, { keyword: i.keyword, position: i.position, raw: i.raw, url: i.url, group: i.group }])) } };
+    } else {
+      body = { keywords: $('kw-input').value, domain, depth: 10 };
+    }
+    await post('/api/run', body);
+    state.settings = { keywords: $('kw-input').value, domain };
+    state.followLatest = true;
+    state.stopping = false;
+    state.job = { running: true, phase: 'starting', done: 0, total: keywordList(body.keywords).length };
+    renderRunPanel();
+    poll();
+  } catch (err) {
+    state.formMsg = err.message;
+    renderRunPanel();
+  } finally {
+    updateRunButton();
+  }
+}
+
+async function stopRun() {
+  state.stopping = true;
+  renderRunPanel();
+  try { await post('/api/stop', {}); } catch (e) { /* the next poll shows the real state */ }
+}
+
+async function refresh() {
+  try {
+    const res = await fetch('/api/state', { cache: 'no-store' });
+    const d = await res.json();
+    state.offline = false;
+    state.clockSkew = d.now - Date.now() / 1000;
+    state.job = d.job;
+    if (!state.formReady) { state.settings = d.settings; state.formReady = true; }
+    const sig = JSON.stringify((d.history.runs || []).map(r => [r.run_id, r.keywords.length, r.finished_at]));
+    if (sig !== state.lastSig) { state.lastSig = sig; setHistory(d.history); render(); }
+  } catch (e) {
+    state.offline = true;
+  }
+  renderRunPanel();
+  return state.job && state.job.running && !state.offline;
+}
+
+async function poll() {
+  if (state.polling) return;
+  state.polling = true;
+  try {
+    while (await refresh()) await new Promise(r => setTimeout(r, 1000));
+  } finally {
+    state.polling = false;
+    if (!state.job?.running) state.stopping = false;
+  }
+}
+
+/* ---------------- start up ---------------- */
+
+function init() {
+  $('run-select').addEventListener('change', e => {
+    state.runId = e.target.value;
+    state.followLatest = runs.length > 0 && state.runId === runs[0].run_id;
+    state.selected = null;
+    render();
+  });
+  $('kw-filter').addEventListener('input', e => { state.filter = e.target.value; render(); });
+  $('export-btn').addEventListener('click', exportCsv);
+
+  if (LIVE) {
+    $('run-panel').classList.remove('hidden');
+    poll();
+  } else {
+    setHistory(STATIC_DATA || { runs: [] });
+    render();
+  }
+}
+init();
+</script>
+</body>
+</html>

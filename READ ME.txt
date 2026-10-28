@@ -1,0 +1,37 @@
+RANK CHECKER
+
+Quick Google top 10 checks, run from a dashboard in your browser.
+
+TO USE
+  Mac:      double-click "Rank Checker.command"
+  Windows:  double-click "Rank Checker.bat"
+
+The dashboard opens in your browser. Enter keywords (one per line) and your
+domain, then click Run check. Results appear as each keyword finishes, and
+your keywords and domain are remembered for next time.
+
+COMPARING WITH WINCHER
+  1. In Wincher, open Keyword Overview and click Export (CSV or Excel).
+  2. In Rank Checker, choose "Compare with Wincher" and drop the file in.
+  3. Tick the keywords to check (or use the Top 10 / Positions 11 to 20
+     buttons), then click Check.
+  The results show Wincher's position next to the manual one, biggest gaps
+  first. Comparison checks look down to position 20, so allow about 45
+  seconds per keyword.
+
+A small window stays open while Rank Checker runs. Close it to shut down.
+
+FIRST TIME ONLY
+  You need Python 3.9 or newer: https://www.python.org/downloads/
+  (On Windows, tick "Add python.exe to PATH" during install.)
+  The first launch then takes a minute or two to set itself up.
+
+  Mac: if it says the file can't be opened, right-click it, choose Open,
+  then Open again. You only need to do this once.
+
+GOOD TO KNOW
+  - A Chrome window opens during a check. Leave it open.
+  - If Google shows a CAPTCHA, solve it in that Chrome window and the check
+    carries on. If Google blocks the check, wait an hour or so.
+  - Each keyword takes about 30 seconds. Keep checks to 30 keywords or fewer.
+  - Results are saved in the "results" folder.
