@@ -12,12 +12,14 @@ You normally start this by double-clicking "Rank Checker.command" (Mac) or
 
 import base64
 import json
+import re
 import threading
 import traceback
 import webbrowser
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs
 
 import importer
 import rank_check as rc
@@ -27,7 +29,6 @@ URL = f"http://{HOST}:{PORT}/"
 OUT_DIR = rc.HERE / "results"
 HISTORY = OUT_DIR / "history.json"
 SETTINGS = OUT_DIR / "settings.json"
-MAX_KEYWORDS = 30
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 STARTER_KEYWORDS = "bad credit car finance\ncar finance with bad credit\nbad credit car loans uk"
 
@@ -38,6 +39,7 @@ class Job:
     def __init__(self):
         self.lock = threading.Lock()
         self.stop = threading.Event()
+        self.skip = threading.Event()
         self.state = self._idle()
 
     @staticmethod
@@ -85,10 +87,12 @@ def read_json(path, default):
         return default
 
 
-def worker(keywords, domain, depth, reference):
+def worker(keywords, domain, depth, reference, pause_min, pause_max, keep_pass):
     try:
-        rc.run_checks(keywords, domain, rc.make_options(depth=depth), HISTORY,
-                      notify=JOB.update, stop_event=JOB.stop, reference=reference)
+        opts = rc.make_options(depth=depth, min_delay=pause_min, max_delay=pause_max,
+                               keep_captcha_pass=keep_pass)
+        rc.run_checks(keywords, domain, opts, HISTORY, notify=JOB.update,
+                      stop_event=JOB.stop, reference=reference, skip_event=JOB.skip)
     except Exception as exc:  # surface anything unexpected in the dashboard
         traceback.print_exc()
         with JOB.lock:
@@ -120,7 +124,15 @@ def clean_reference(ref, keywords):
             "items": items}
 
 
-def start_job(raw_keywords, domain, depth=10, reference=None):
+def clean_pause(value, default):
+    try:
+        return min(max(float(value), 0.0), 600.0)
+    except (TypeError, ValueError):
+        return default
+
+
+def start_job(raw_keywords, domain, depth=10, reference=None, pause_min=None, pause_max=None,
+              keep_pass=True):
     keywords, seen = [], set()
     for line in raw_keywords.splitlines():
         kw = line.strip()
@@ -129,23 +141,27 @@ def start_job(raw_keywords, domain, depth=10, reference=None):
             keywords.append(kw)
     if not keywords:
         return 400, {"error": "Add at least one keyword, one per line."}
-    if len(keywords) > MAX_KEYWORDS:
-        return 400, {"error": f"That's {len(keywords)} keywords. Keep quick checks to "
-                              f"{MAX_KEYWORDS} or fewer so Google doesn't block the run."}
     depth = 20 if depth == 20 else 10
+    pause_min = clean_pause(pause_min, rc.DEFAULTS["min_delay"])
+    pause_max = max(clean_pause(pause_max, rc.DEFAULTS["max_delay"]), pause_min)
+    keep_pass = keep_pass is not False
     reference = clean_reference(reference, keywords) if reference else None
     with JOB.lock:
         if JOB.state["running"]:
             return 409, {"error": "A check is already running."}
         JOB.stop.clear()
+        JOB.skip.clear()
         JOB.state = Job._idle()
         JOB.state.update(running=True, total=len(keywords), phase="starting")
     settings = read_json(SETTINGS, {})
     settings["domain"] = rc.clean_domain(domain)
+    settings["pause_min"], settings["pause_max"] = pause_min, pause_max
+    settings["keep_captcha_pass"] = keep_pass
     if reference is None:  # typed keywords are remembered; imported ones aren't
         settings["keywords"] = "\n".join(keywords)
     SETTINGS.write_text(json.dumps(settings), encoding="utf-8")
-    threading.Thread(target=worker, args=(keywords, domain, depth, reference), daemon=True).start()
+    threading.Thread(target=worker, args=(keywords, domain, depth, reference, pause_min, pause_max, keep_pass),
+                     daemon=True).start()
     return 200, {"ok": True}
 
 
@@ -186,10 +202,33 @@ class Handler(BaseHTTPRequestHandler):
             html = html.replace("/*__LIVE__*/false", "true")
             self._send(200, html.encode(), "text/html; charset=utf-8")
         elif path == "/api/state":
-            settings = {"keywords": STARTER_KEYWORDS, "domain": "", **read_json(SETTINGS, {})}
+            settings = {"keywords": STARTER_KEYWORDS, "domain": "",
+                        "pause_min": rc.DEFAULTS["min_delay"], "pause_max": rc.DEFAULTS["max_delay"],
+                        "keep_captcha_pass": rc.DEFAULTS["keep_captcha_pass"],
+                        **read_json(SETTINGS, {})}
             self._send(200, {"history": read_json(HISTORY, {"runs": []}),
                              "job": JOB.snapshot(), "settings": settings,
                              "now": datetime.now().timestamp()})
+        elif path == "/api/export-dashboard":
+            query = parse_qs(self.path.partition("?")[2])
+            run_id = query.get("run", [None])[0]
+            history = read_json(HISTORY, {"runs": []})
+            _, domain, _ = rc.client_history(history, run_id)
+            slug = re.sub(r"[^a-z0-9]+", "-", domain.lower()).strip("-") or "client"
+            stamp = f"{datetime.now():%Y-%m-%d}"
+            if query.get("format", [""])[0] == "zip":
+                data, _ = rc.client_site_zip(history, run_id)
+                name, ctype = f"{slug}-rank-check-site-{stamp}.zip", "application/zip"
+            else:
+                data = rc.render_dashboard(history, run_id, client=True).encode()
+                name, ctype = f"{slug}-rank-check-{stamp}.html", "text/html; charset=utf-8"
+            self.send_response(200)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
         else:
             self._send(404, {"error": "Not found"})
 
@@ -211,12 +250,17 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?")[0]
         if path == "/api/run":
             code, payload = start_job(str(body.get("keywords", "")), str(body.get("domain", "")),
-                                      body.get("depth", 10), body.get("reference"))
+                                      body.get("depth", 10), body.get("reference"),
+                                      body.get("pause_min"), body.get("pause_max"),
+                                      body.get("keep_captcha_pass", True))
             self._send(code, payload)
         elif path == "/api/import":
             self._send(*handle_import(body))
         elif path == "/api/stop":
             JOB.stop.set()
+            self._send(200, {"ok": True})
+        elif path == "/api/skip":
+            JOB.skip.set()
             self._send(200, {"ok": True})
         else:
             self._send(404, {"error": "Not found"})
