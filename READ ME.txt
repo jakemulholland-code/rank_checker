@@ -29,9 +29,24 @@ FIRST TIME ONLY
   Mac: if it says the file can't be opened, right-click it, choose Open,
   then Open again. You only need to do this once.
 
+SHARING WITH A CLIENT
+  Pick a check in the dropdown, then:
+  - "Client page" downloads one HTML file you can email or keep.
+  - "Netlify site (.zip)" downloads a ready-made website. Go to
+    app.netlify.com/drop and drag the zip in to get a link to send the client.
+    To update it later, open that site in Netlify, go to Deploys and drag the
+    new zip in, so the client's link stays the same.
+  Both only include checks for that check's domain, never other clients'.
+  The page is hidden from search engines, but anyone with the link can view
+  it, so use one Netlify site per client. Add #run=<check id> to the link
+  (shown at the bottom of the page) to open a particular check.
+
 GOOD TO KNOW
   - A Chrome window opens during a check. Leave it open.
   - If Google shows a CAPTCHA, solve it in that Chrome window and the check
     carries on. If Google blocks the check, wait an hour or so.
-  - Each keyword takes about 30 seconds. Keep checks to 30 keywords or fewer.
+  - The check pauses between keywords (20 to 40 seconds by default). You can
+    change the pause next to the Run button, or click "Skip the wait" while a
+    check is pausing. Shorter pauses and large checks are more likely to hit a
+    CAPTCHA or a block from Google.
   - Results are saved in the "results" folder.
