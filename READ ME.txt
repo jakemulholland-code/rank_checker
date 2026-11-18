@@ -1,12 +1,33 @@
 RANK CHECKER
 
-Quick Google top 10 checks, run from a dashboard in your browser.
+Quick Google top 10 checks, run from a dashboard.
 
-TO USE
+THE APP (WINDOWS)
+  Download "Rank.Checker_<version>_x64-setup.exe" from the latest release at
+  https://github.com/jakemulholland-code/rank-checker-releases/releases/latest
+  and run it. Windows SmartScreen warns because the installer isn't
+  code-signed: choose More info, then Run anyway. Then open Rank Checker
+  from the Start menu (and pin it to the taskbar if you like).
+
+  No Python needed. The app checks for a new version each time it opens and
+  offers "Install and restart".
+
+  Results are kept in %APPDATA%\uk.co.paramountdigital.rank-checker\results
+  (paste that into the File Explorer address bar). To bring over checks from
+  the old version, close the app, then copy history.json and settings.json
+  from the old "results" folder into that one.
+
+  Exports (client pages, CSVs, Netlify zips) go to your Downloads folder,
+  and File Explorer opens to show each one.
+
+WITHOUT THE APP
   Mac:      double-click "Rank Checker.command"
   Windows:  double-click "Rank Checker.bat"
 
-The dashboard opens in your browser. Enter keywords (one per line) and your
+The dashboard opens in your browser.
+
+USING IT
+Enter keywords (one per line) and your
 domain, then click Run check. Results appear as each keyword finishes, and
 your keywords and domain are remembered for next time.
 
@@ -19,9 +40,10 @@ COMPARING WITH WINCHER
   first. Comparison checks look down to position 20, so allow about 45
   seconds per keyword.
 
-A small window stays open while Rank Checker runs. Close it to shut down.
+Without the app, a small window stays open while Rank Checker runs. Close it
+to shut down.
 
-FIRST TIME ONLY
+FIRST TIME ONLY (WITHOUT THE APP)
   You need Python 3.9 or newer: https://www.python.org/downloads/
   (On Windows, tick "Add python.exe to PATH" during install.)
   The first launch then takes a minute or two to set itself up.
@@ -42,11 +64,12 @@ SHARING WITH A CLIENT
   (shown at the bottom of the page) to open a particular check.
 
 GOOD TO KNOW
-  - A Chrome window opens during a check. Leave it open.
+  - A Chrome window opens during a check (Edge if Chrome isn't installed).
+    Leave it open.
   - If Google shows a CAPTCHA, solve it in that Chrome window and the check
     carries on. If Google blocks the check, wait an hour or so.
   - The check pauses between keywords (20 to 40 seconds by default). You can
     change the pause next to the Run button, or click "Skip the wait" while a
     check is pausing. Shorter pauses and large checks are more likely to hit a
     CAPTCHA or a block from Google.
-  - Results are saved in the "results" folder.
+  - Without the app, results are saved in the "results" folder here.

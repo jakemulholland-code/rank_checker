@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Rank Checker</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<style>
+  :root { --ink:#1a1a1a; --muted:#6a6a6a; --line:#ededed; --red:#DA1A50; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { background:#fff; color:var(--ink); font-family:'Segoe UI', system-ui, sans-serif;
+         display:flex; align-items:center; justify-content:center; }
+  main { text-align:center; max-width:520px; padding:0 24px; }
+  img { width:56px; height:56px; animation:pulse 1.6s ease-in-out infinite; }
+  h1 { font-size:20px; font-weight:600; margin:20px 0 6px; }
+  p { color:var(--muted); font-size:14px; line-height:1.5; }
+  .error img { animation:none; opacity:.4; }
+  .error h1 { color:var(--red); }
+  pre { margin-top:16px; text-align:left; font-size:12px; color:var(--muted); background:#f6f7f8;
+        border:1px solid var(--line); border-radius:8px; padding:10px 12px; white-space:pre-wrap;
+        max-height:200px; overflow:auto; }
+  pre:empty { display:none; }
+  @keyframes pulse { 50% { opacity:.45; } }
+</style>
+</head>
+<body>
+<main id="box">
+  <img src="favicon.svg" alt="" />
+  <h1 id="title">Starting Rank Checker</h1>
+  <p id="msg">This takes a few seconds.</p>
+  <pre id="detail"></pre>
+</main>
+<script>
+  // Called by the app (src-tauri/src/lib.rs) if the local server fails to start.
+  window.showError = function (message, detail) {
+    document.getElementById('box').className = 'error';
+    document.getElementById('title').textContent = "Rank Checker couldn't start";
+    document.getElementById('msg').textContent = message;
+    document.getElementById('detail').textContent = detail || '';
+  };
+</script>
+</body>
+</html>

@@ -36,7 +36,13 @@ except ImportError:  # allows --rebuild-dashboard without Playwright installed
     PWError = PWTimeout = Exception
 
 HERE = Path(__file__).resolve().parent
-TEMPLATE_PATH = HERE / "dashboard_template.html"
+# In the desktop app's bundled server (PyInstaller), data files sit in _MEIPASS.
+BUNDLE = Path(getattr(sys, "_MEIPASS", HERE))
+TEMPLATE_PATH = BUNDLE / "dashboard_template.html"
+
+# The Paramount Digital tile mark, used as the favicon (also inlined in dashboard_template.html,
+# so exported client pages carry it). Source: icons/favicon.svg.
+FAVICON_SVG = (BUNDLE / "icons" / "favicon.svg").read_text(encoding="utf-8")     if (BUNDLE / "icons" / "favicon.svg").exists() else ""
 GOOGLE_HOST_RE = re.compile(r"(^|\.)google\.[a-z]{2,3}(\.[a-z]{2})?$")
 
 # Google's markup changes often. If results stop being picked up, this is the
@@ -533,12 +539,18 @@ def print_event(event):
 
 
 def launch(p, headless, notify=print_event):
-    try:
-        return p.chromium.launch(channel="chrome", headless=headless)
-    except PWError:
-        notify({"type": "info",
-                "message": "Chrome wasn't found, so the bundled Chromium browser is being used."})
-        return p.chromium.launch(headless=headless)
+    """Use the installed Chrome, then Edge (always there on Windows), then Playwright's Chromium."""
+    for channel in ("chrome", "msedge"):
+        try:
+            browser = p.chromium.launch(channel=channel, headless=headless)
+        except PWError:
+            continue
+        if channel == "msedge":
+            notify({"type": "info", "message": "Chrome wasn't found, so Microsoft Edge is being used."})
+        return browser
+    notify({"type": "info",
+            "message": "Chrome and Edge weren't found, so the bundled Chromium browser is being used."})
+    return p.chromium.launch(headless=headless)
 
 
 # ---------------------------------------------------------------------------
