@@ -1,6 +1,6 @@
 [package]
 name = "rank-checker"
-version = "0.1.0"
+version = "0.1.1"
 description = "Rank Checker"
 authors = ["Paramount Digital"]
 edition = "2021"
