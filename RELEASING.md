@@ -29,7 +29,7 @@ Icons come from `icons/app-icon.svg` (`npm run icons`, then delete `src-tauri/ic
 
 ## Releasing a new version
 
-Installers and updates are published to the **public** repo [rank-checker-releases](https://github.com/jakemulholland-code/rank-checker-releases), because this repo is private and the updater can only read public releases.
+Installers and updates are published as releases of this repo. The updater can only read public releases, so this repo must stay public (which also makes `results/` public).
 
 1. Bump `version` in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`.
 2. Commit, then tag and push:
@@ -42,18 +42,12 @@ git tag v0.1.1
 git push origin main --tags
 ```
 
-3. The `release` workflow builds the installer on `windows-latest`, signs the updater files and attaches everything, including `latest.json`, to a **draft** release in `rank-checker-releases`.
-4. Check the draft there, then publish it. Installed apps only see published releases.
-
-### One-off setup
-
-- Create the public repo `jakemulholland-code/rank-checker-releases` with a README (it needs a `main` branch for release tags).
-- Create a fine-grained personal access token with **Contents: read and write** on that repo only, and save it in this repo's secrets as `RELEASES_TOKEN`.
-- Add the updater signing key as secrets (below).
+3. The `release` workflow builds the installer on `windows-latest`, signs the updater files and attaches everything, including `latest.json`, to a **draft** release.
+4. Check the draft, then publish it. Installed apps only see published releases.
 
 ### Updater signing key
 
-Updates are signed. The private key and its password were generated on Jake's machine at `%USERPROFILE%\.tauri\rank-checker.key` (password in `rank-checker.key.password.txt` beside it). Store them as the repo secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, and keep a copy of both in a password manager: if the key is lost, installed copies can no longer be updated and everyone has to reinstall by hand. The public key is in `src-tauri/tauri.conf.json`. Never commit the private key.
+Updates are signed. The private key and its password were generated on Jake's machine at `%USERPROFILE%\.tauri\rank-checker.key` (password in `rank-checker.key.password.txt` beside it). They are stored as the repo secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Keep a copy of both in a password manager: if the key is lost, installed copies can no longer be updated and everyone has to reinstall by hand. The public key is in `src-tauri/tauri.conf.json`. Never commit the private key.
 
 To build an installer locally without releasing (PowerShell):
 

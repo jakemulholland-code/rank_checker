@@ -4,7 +4,7 @@ Quick Google top 10 checks, run from a dashboard.
 
 THE APP (WINDOWS)
   Download "Rank.Checker_<version>_x64-setup.exe" from the latest release at
-  https://github.com/jakemulholland-code/rank-checker-releases/releases/latest
+  https://github.com/jakemulholland-code/rank_checker/releases/latest
   and run it. Windows SmartScreen warns because the installer isn't
   code-signed: choose More info, then Run anyway. Then open Rank Checker
   from the Start menu (and pin it to the taskbar if you like).

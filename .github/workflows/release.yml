@@ -1,12 +1,9 @@
 # Builds the Windows installer when a version tag (v*) is pushed and attaches it, with the
-# signed updater files and latest.json, to a draft release in the PUBLIC repo
-# jakemulholland-code/rank-checker-releases (this repo stays private, and the in-app
-# updater can only read public releases). Publish the draft there to offer the update.
+# signed updater files and latest.json, to a draft GitHub Release in this repo.
+# Publish the draft to make it the version the in-app updater offers. The updater can only
+# read releases while this repo is public.
 #
-# Secrets this repo needs:
-#   RELEASES_TOKEN                      fine-grained token with Contents: read and write on rank-checker-releases
-#   TAURI_SIGNING_PRIVATE_KEY           contents of %USERPROFILE%\.tauri\rank-checker.key
-#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  contents of %USERPROFILE%\.tauri\rank-checker.key.password.txt
+# Secrets: TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD (see RELEASING.md).
 name: release
 
 on:
@@ -17,6 +14,8 @@ on:
 jobs:
   release-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
 
@@ -50,15 +49,11 @@ jobs:
       - name: Build installer and draft release
         uses: tauri-apps/tauri-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          owner: jakemulholland-code
-          repo: rank-checker-releases
           tagName: ${{ github.ref_name }}
-          # This repo's commit doesn't exist over there, so tag the releases repo's main.
-          releaseCommitish: main
           releaseName: "Rank Checker ${{ github.ref_name }}"
           releaseBody: |
             Download **Rank.Checker_*_x64-setup.exe** below and run it.
