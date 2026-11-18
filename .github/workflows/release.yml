@@ -1,0 +1,65 @@
+# Builds the Windows installer when a version tag (v*) is pushed and attaches it, with the
+# signed updater files and latest.json, to a draft GitHub Release in this repo.
+# Publish the draft to make it the version the in-app updater offers. The updater can only
+# read releases while this repo is public.
+#
+# Secrets: TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD (see RELEASING.md).
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-build.txt
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install -r requirements.txt -r requirements-build.txt
+
+      - name: Check the server starts
+        run: python -c "import app, importer, rank_check"
+
+      - name: Build installer and draft release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Rank Checker ${{ github.ref_name }}"
+          releaseBody: |
+            Download **Rank.Checker_*_x64-setup.exe** below and run it.
+            Windows SmartScreen will warn because the installer is not code-signed: choose More info, then Run anyway.
+            Once installed, the app updates itself from new releases.
+          releaseDraft: true
+          prerelease: false
+          uploadUpdaterJson: true
+          args: --bundles nsis

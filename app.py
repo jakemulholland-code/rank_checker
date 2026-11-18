@@ -8,9 +8,17 @@ results arrive. Close this window to shut it down.
 
 You normally start this by double-clicking "Rank Checker.command" (Mac) or
 "Rank Checker.bat" (Windows), which also handle first-time setup.
+
+The desktop app (src-tauri) starts it with --app: no browser is opened, the
+port falls back to a free one if 8765 is taken, the address is printed as
+"RANK_CHECKER_URL <url>" for the app to load, and the server stops when the
+app closes its stdin. RANK_CHECKER_DATA_DIR sets where results are kept.
 """
 
+import argparse
 import base64
+import os
+import sys
 import json
 import re
 import threading
@@ -26,7 +34,7 @@ import rank_check as rc
 
 HOST, PORT = "127.0.0.1", 8765
 URL = f"http://{HOST}:{PORT}/"
-OUT_DIR = rc.HERE / "results"
+OUT_DIR = Path(os.environ.get("RANK_CHECKER_DATA_DIR") or rc.HERE / "results")
 HISTORY = OUT_DIR / "history.json"
 SETTINGS = OUT_DIR / "settings.json"
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
@@ -201,6 +209,8 @@ class Handler(BaseHTTPRequestHandler):
             html = rc.TEMPLATE_PATH.read_text(encoding="utf-8")
             html = html.replace("/*__LIVE__*/false", "true")
             self._send(200, html.encode(), "text/html; charset=utf-8")
+        elif path in ("/favicon.svg", "/favicon.ico"):
+            self._send(200, rc.FAVICON_SVG.encode(), "image/svg+xml")
         elif path == "/api/state":
             settings = {"keywords": STARTER_KEYWORDS, "domain": "",
                         "pause_min": rc.DEFAULTS["min_delay"], "pause_max": rc.DEFAULTS["max_delay"],
@@ -235,7 +245,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         # Only accept requests from the dashboard itself, not other websites.
         origin = self.headers.get("Origin")
-        if origin and origin.rstrip("/") != URL.rstrip("/"):
+        own = f"http://{HOST}:{self.server.server_address[1]}"
+        if origin and origin.rstrip("/") != own:
             return self._send(403, {"error": "Forbidden"})
         if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
             return self._send(415, {"error": "Expected JSON"})
@@ -266,17 +277,55 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "Not found"})
 
 
+class Server(ThreadingHTTPServer):
+    # On Windows SO_REUSEADDR lets a second copy bind a port that is already in use,
+    # so "already running" would never be noticed.
+    allow_reuse_address = sys.platform != "win32"
+    daemon_threads = True
+
+
+def exit_when_stdin_closes():
+    """In app mode the desktop app holds our stdin open; when it exits, so do we."""
+    try:
+        while sys.stdin.readline():
+            pass
+    except (OSError, ValueError):
+        pass
+    JOB.stop.set()
+    os._exit(0)
+
+
 def main():
+    ap = argparse.ArgumentParser(description="Rank Checker dashboard")
+    ap.add_argument("--app", action="store_true",
+                    help="run for the desktop app: no browser, any free port, stop when stdin closes")
+    ap.add_argument("--port", type=int, default=PORT)
+    args = ap.parse_args()
+    # The desktop app reads our output through a pipe. Frozen builds ignore PYTHONIOENCODING and
+    # PYTHONUNBUFFERED, so set both here: UTF-8 (keywords can hold any character) and line by line.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+        except (AttributeError, ValueError):
+            pass
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     try:
-        server = ThreadingHTTPServer((HOST, PORT), Handler)
+        server = Server((HOST, args.port), Handler)
     except OSError:
-        print(f"Rank Checker already seems to be running. Opening {URL}")
-        webbrowser.open(URL)
-        return
-    print(f"Rank Checker is running at {URL}")
-    print("Leave this window open while you use it. Close it to shut Rank Checker down.\n")
-    threading.Timer(0.8, webbrowser.open, [URL]).start()
+        if not args.app:
+            print(f"Rank Checker already seems to be running. Opening {URL}")
+            webbrowser.open(URL)
+            return
+        server = Server((HOST, 0), Handler)
+    url = f"http://{HOST}:{server.server_address[1]}/"
+    if args.app:
+        print(f"RANK_CHECKER_URL {url}", flush=True)
+        threading.Thread(target=exit_when_stdin_closes, daemon=True).start()
+    else:
+        print(f"Rank Checker is running at {url}")
+        print("Leave this window open while you use it. Close it to shut Rank Checker down.\n")
+        threading.Timer(0.8, webbrowser.open, [url]).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
